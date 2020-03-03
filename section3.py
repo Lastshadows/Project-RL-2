@@ -4,8 +4,18 @@ import time
 import sys
 
 def monte_carlo(trajectories):
+
+    print("MONTE CARLO")
+    toolbar_width = 50
+    sys.stdout.write("[%s]" % (" " * toolbar_width))
+    sys.stdout.flush()
+    sys.stdout.write("\b" * (toolbar_width+1)) # return to start of line, after '['
+
     stateActionPairs = []
     rewardHistory = []
+    j =0
+    N = len(trajectories)
+
     for trajectory in trajectories:
         for (pt,st),at,rt in trajectory:
             if [pt,st,at] not in stateActionPairs:
@@ -19,6 +29,12 @@ def monte_carlo(trajectories):
                 x = x+1
                 rewardHistory.append([(pt,st),at,x,reward])
                 stateActionPairs.append([pt,st,at])
+        j = j+1
+        if (j)%(N/toolbar_width)==0:
+            sys.stdout.write("-")
+            sys.stdout.flush()
+
+    sys.stdout.write("]\n") #
 
     return rewardHistory  
 
@@ -27,7 +43,7 @@ if __name__ == '__main__':
 
     policy = "ACC"
     steps = 20
-    N = 10000
+    N = 1000
     trajectories = []
 
     toolbar_width = 50
