@@ -11,6 +11,6 @@ if __name__ == '__main__':
     print(" Section 2 : \n")
     print(" Printing the trajectory of the game (" + str(steps) + " steps) under the following format : \n")
     print("(position, speed), action, reward")
-    
+
     for tuple in game.trajectory:
         print(tuple)

@@ -25,10 +25,11 @@ class Domain:
 
 
 
-
+    # returns true if we are in a terminal state
     def isTerminalState(self,p, s):
         return abs(p) > 1 or abs(s) > 3
 
+    # returns the instantenous reward
     def rewardSignal(self, p, s):
 
         if (p < -1) or (abs(s) > 3 ):
@@ -52,6 +53,7 @@ class Domain:
             return 2*p + 1
         return 1/((5*(p**2)+1)**(3/2))
 
+    # derivative of the slope of the hill
     def hillDoublePrime(self,p):
         if p < 0:
             return 2
@@ -60,6 +62,7 @@ class Domain:
     def pPrime(self, s):
         return s
 
+    # returns the instant acceleration
     def sPrime(self, p,s,u):
 
         first_term = u/(self.M*(1 + self.hillPrime(p)**2))
@@ -96,9 +99,9 @@ class Domain:
         :param s_0: initial speed
         :param u: action (acceleration value)
         :param t_0: initial time
-        :return: nextP, nextS, nextT
+        :return: nextp, next_s, next_t
         """
 
-        nextP, nextS = self.euler( p_0, s_0, u)
+        next_p, next_s = self.euler( p_0, s_0, u)
 
-        return nextP, nextS, t_0 + self.TIME_DISCR
+        return next_p, next_s, t_0 + self.TIME_DISCR
