@@ -1,6 +1,6 @@
 from math import sqrt
 
-class domain:
+class Domain:
     def __init__(self):
 
         # upper and lower bounds on p and s
@@ -11,6 +11,8 @@ class domain:
 
         # actions
         self.ACTIONS = [-4, 4]
+        self.ACTIONS_DICT = {"dec": -4, "acc": 4}
+        self.ACTIONS_NAMES = ["dec","acc"]
 
         # physics constants
         self.M = 1
@@ -31,10 +33,10 @@ class domain:
 
         if (p < -1) or (abs(s) > 3 ):
             return -1
-        if (p > 1) or (abs(s) <= 3 ):
+        if (p > 1) and (abs(s) <= 3 ):
             return 1
 
-        return 0
+        else : return 0
 
     # returns the hill's height from the position p
     def hill(self, p):
