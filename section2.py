@@ -1,11 +1,16 @@
 from game import Game
+import random
+
 
 if __name__ == '__main__':
 
     policy = "ACC"
-    steps = 20
+    steps = 1000
 
-    game = Game(0,0, policy, steps)
+    p = random.uniform(-0.1, 0.1)
+    s = 0
+
+    game = Game(p,s, policy, steps)
     game.playGame()
 
     print(" Section 2 : \n")

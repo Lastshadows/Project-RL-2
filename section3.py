@@ -2,70 +2,37 @@ from game import Game
 import random 
 import time
 import sys
-
-def monte_carlo(trajectories):
-
-    print("MONTE CARLO")
-    toolbar_width = 50
-    sys.stdout.write("[%s]" % (" " * toolbar_width))
-    sys.stdout.flush()
-    sys.stdout.write("\b" * (toolbar_width+1)) # return to start of line, after '['
-
-    stateActionPairs = []
-    rewardHistory = []
-    j =0
-    N = len(trajectories)
-
-    for trajectory in trajectories:
-        for (pt,st),at,rt in trajectory:
-            if [pt,st,at] not in stateActionPairs:
-                stateActionPairs.append([pt,st,at])
-                rewardHistory.append([(pt,st),at,1,rt])
-            else:
-                i = stateActionPairs.index([pt,st,at])
-                stateActionPairs.pop(i)
-                (pt,st),at,x,reward = rewardHistory.pop(i)
-                reward = (x*reward + rt)/(x+1)
-                x = x+1
-                rewardHistory.append([(pt,st),at,x,reward])
-                stateActionPairs.append([pt,st,at])
-        j = j+1
-        if (j)%(N/toolbar_width)==0:
-            sys.stdout.write("-")
-            sys.stdout.flush()
-
-    sys.stdout.write("]\n") #
-
-    return rewardHistory  
+import numpy as np
 
 
 if __name__ == '__main__':
 
     policy = "ACC"
-    steps = 20
-    N = 1000
-    trajectories = []
-
+    steps = 2000
+    N = 100
     toolbar_width = 50
 
-    print("GENERATING TRAJECTORIES:")
+    print("\nGENERATING TRAJECTORIES:\n")
     # setup toolbar
     sys.stdout.write("[%s]" % (" " * toolbar_width))
     sys.stdout.flush()
     sys.stdout.write("\b" * (toolbar_width+1)) # return to start of line, after '['
+
+    rewards = np.zeros(N)
 
     for i in range(N):
         p = random.uniform(-0.1, 0.1)
         s = 0
         game = Game(p,s, policy, steps)
         game.playGame()
-        trajectories.append(game.trajectory)
-
+        rewards[i]=game.get_reward()
         if (i+1)%(N/toolbar_width)==0:
             sys.stdout.write("-")
             sys.stdout.flush()
 
     sys.stdout.write("]\n") #
 
-    for tuple in monte_carlo(trajectories):
-        print(tuple)
+    print(sum(rewards)/N)
+
+    #for tuple in monte_carlo(trajectories):
+    #    print(tuple)

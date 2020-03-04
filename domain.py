@@ -27,17 +27,18 @@ class Domain:
 
     # returns true if we are in a terminal state
     def isTerminalState(self,p, s):
-        return abs(p) > 1 or abs(s) > 3
+        if abs(p) > 1 or abs(s) > 3:
+            return True
+        return False
 
     # returns the instantenous reward
     def rewardSignal(self, p, s):
-
+        reward = 0
         if (p < -1) or (abs(s) > 3 ):
-            return -1
+            reward = -1
         if (p > 1) and (abs(s) <= 3 ):
-            return 1
-
-        else : return 0
+            reward = 1
+        return reward
 
     # returns the hill's height from the position p
     def hill(self, p):
