@@ -8,7 +8,7 @@ import numpy as np
 if __name__ == '__main__':
 
     policy = "ACC"
-    steps = 2000
+    steps = 1000
     N = 100
     toolbar_width = 50
 
@@ -32,7 +32,7 @@ if __name__ == '__main__':
 
     sys.stdout.write("]\n") #
 
-    print(sum(rewards)/N)
+    print("The estimated expected reward for the initial state state is : "+str(sum(rewards)/N))
 
     #for tuple in monte_carlo(trajectories):
     #    print(tuple)
