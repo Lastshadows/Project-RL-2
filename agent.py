@@ -1,12 +1,24 @@
 from domain import Domain
 import random
+from FQI import FittedQItLearner
+
 class Agent:
 
-    def __init__(self, domain, policy):
+    # 'domain' is a variable of domain type
+    # 'policy'  is a string giving the nature of the policy the agent will follow
+    # if it is a SL model type (tree, linear or network), a FQI algo will be used
+    # N is the number of iteration the FQI algo will use if this is the chosen policy
+    # trajectory is the trajectory that the FQI would use to build its model
+    # it must be a (x,u,r) tuple, where x is a (p,s) tuple
+    def __init__(self, domain, policy, trajectory = [], N = 0):
         # initialize dynamics and policy
         self.domain = domain
         self.policy_name = policy
+        self.trajectoryFQI = trajectory
+        self.N_FQI = N
 
+        if N > 0:
+            self.FQI = FittedQItLearner(policy, trajectory, N)
 
     # selects an action (-4 or 4) to execute from the current state (position "p" and speed "s")
     def policy(self, p, s):
@@ -18,4 +30,31 @@ class Agent:
             rand = random.randint(0,1)
             return self.domain.ACTIONS[rand]
 
+        if self.policy_name =="tree" :
+            x = (p,s)
+            return self.selectBestActionFromFQI( x)
 
+        if self.policy_name =="linear" :
+            x = (p,s)
+            return self.selectBestActionFromFQI(x)
+
+        if self.policy_name =="network" :
+            x = (p,s)
+            return self.selectBestActionFromFQI(x)
+
+
+    # takes a state x (p,s) and gives back the best action to take according to
+    # the FQI model
+    def selectBestActionFromFQI(self, x):
+
+        best_reward = float("-inf")
+        best_action = 0
+
+        for u in self.domain.ACTIONS:
+
+            reward =  self.FQI.rewardFromModel(x, u)
+            if reward > best_reward:
+                best_reward = reward
+                best_action = u
+
+        return u

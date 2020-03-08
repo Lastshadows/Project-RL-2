@@ -40,6 +40,9 @@ class Domain:
             reward = 1
         return reward
 
+    def getDiscountFactor(self):
+        return self.DISCOUNT_FACTOR
+
     # returns the hill's height from the position p
     def hill(self, p):
         if p < 0:
@@ -98,7 +101,7 @@ class Domain:
         Describe the dynamics of the domain
         :param p_0: initial position
         :param s_0: initial speed
-        :param u: action (acceleration value)
+        :param u: action (acceleration value) (int value)
         :param t_0: initial time
         :return: nextp, next_s, next_t
         """

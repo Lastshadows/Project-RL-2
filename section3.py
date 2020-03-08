@@ -1,5 +1,5 @@
 from game import Game
-import random 
+import random
 import time
 import sys
 import numpy as np
@@ -25,7 +25,7 @@ if __name__ == '__main__':
         s = 0
         game = Game(p,s, policy, steps)
         game.playGame()
-        rewards[i]=game.get_reward()
+        rewards[i]=game.getReward()
         if (i+1)%(N/toolbar_width)==0:
             sys.stdout.write("-")
             sys.stdout.flush()

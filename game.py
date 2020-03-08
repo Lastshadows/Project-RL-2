@@ -22,7 +22,7 @@ class Game:
         # create a memory for the taken trajectory
         self.trajectory = []
 
-    def get_reward(self):
+    def getReward(self):
         return self.reward
 
     def playGame(self):
@@ -46,3 +46,15 @@ class Game:
             self.p, self.s, self.t = next_state
 
             i+= 1
+
+    # sets the parameters for a FQI policy game
+    # 'policy'  is a string giving the nature of the SL model type (tree, linear or network) that the FQI algo will use
+    # N is the number of iteration the FQI algo will use if this is the chosen policy
+    # trajectory is the trajectory that the FQI would use to build its model
+    # it must be a (x,u,r) tuple, where x is a (p,s) tuple
+    def setToFQI(self, policy, trajectory, N):
+
+        # change the policy name
+        self.policy_name = policy
+        # create the FQI agent and replace the original one
+        self.agent = Agent(self.domain, policy, trajectory, N)
