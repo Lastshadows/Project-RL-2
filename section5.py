@@ -1,71 +1,83 @@
-from displayer import save_caronthehill_image
-import imageio
-import os
 from game import Game
 from FQI import FittedQItLearner
+import random
+import pickle
+import os.path
 
 if __name__ == "__main__":
 
+
     policy = "RAND"
-    policy_FQI = "linear"
-    steps = 10
-    nb_of_games = 100
+    policy_FQI = "tree"
+    steps = 100
+    FQI_steps = 2000
+    nb_of_games = 1000
     concatenated_traj = []
-    N_iterations = 10
-    N_FQI = 10
-    model_type = 'linear'
+    N_FQI = 75 
 
-    for i in range(nb_of_games):
+    filename = str(nb_of_games) + 'games_half_win'
 
-        # play a game
-        game = Game(0, 0, policy, steps)
-        game.playGame()
+    # if the desired number of won games has already been generated, no need to generate them anymore
+    if os.path.isfile(filename):
 
-        # build the trajectory
-        for tuple in game.trajectory:
-            concatenated_traj.append(tuple)
+        with open(filename, 'rb') as f:
+            ...
+            concatenated_traj = pickle.load(f)
 
-    game = Game(0,0,policy, steps)
-    game.setToFQI(policy_FQI, concatenated_traj, N_FQI)
+    # if the desired number of winned games hasn't been generated yet, generate them and store them
+    else:
+        print("playing the games")
+        i = 0
+        losing_allowed = False
+
+        while i < nb_of_games:
+
+            # play a game
+            p = random.uniform(-0.1, 0.1)
+            game = Game(p, 0, policy, steps)
+            game.playGame()
+
+            if game.isWon and not losing_allowed:
+                i+=1
+                print(str(i))
+
+                # build the trajectory
+                for tuple in game.trajectory:
+                    concatenated_traj.append(tuple)
+                    x,u,r = tuple
+
+                # allow the addition of a lost game next time
+                losing_allowed = True
+
+            # if we just added a winning game, we can add another losing case
+            elif losing_allowed and not game.isWon:
+                i += 1
+                print(str(i))
+
+                for tuple in game.trajectory:
+                    concatenated_traj.append(tuple)
+                    x, u, r = tuple
+
+                # next added game need to be winned
+                losing_allowed = False
+
+            # saving the generated games for further use
+            with open(filename , 'wb') as fp:
+                pickle.dump(concatenated_traj, fp)
+
+
+
+    print("building the FQI model")
+    p = random.uniform(-0.1, 0.1)
+    game = Game(p,0,policy, FQI_steps)
+    game.setToFQI(policy_FQI, concatenated_traj, N_FQI, nb_of_games)
+
+    print("playing last game")
     game.playGame()
 
     i = 0
-    images = []
-
-    # creation of the temporary folder where we will put the images
-    newpath = r'GIF'
-    if not os.path.exists(newpath):
-        os.makedirs(newpath)
-
-    # build the gif from the images generated
     for tuple in game.trajectory:
-        state, u, r = tuple
-        p, s = state
-        filename = "GIF/carTraj" + str(i) + ".png"
+        print(tuple)
+        i+=1
 
-        # save the image of a given state
-        save_caronthehill_image(p, s, out_file=filename)
-
-        # add the image to the gif
-        images.append(imageio.imread(filename))
-
-        # immediately delete the image
-        os.remove(filename)
-
-        i += 1
-
-    # save the last image
-    filename = "GIF/carTraj" + str(i) + ".png"
-    a = save_caronthehill_image(p, s, out_file=filename, close=True)
-
-    # add the image to the gif
-    images.append(imageio.imread(filename))
-
-    # immediately delete the image
-    os.remove(filename)
-
-    # delete the folder
-    os.rmdir(newpath)
-
-    # save the gif
-    imageio.mimsave('trajectory' + policy_FQI + '.gif', images)
+    print("game of " + str(i) + " moves")

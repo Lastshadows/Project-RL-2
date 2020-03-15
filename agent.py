@@ -10,7 +10,7 @@ class Agent:
     # N is the number of iteration the FQI algo will use if this is the chosen policy
     # trajectory is the trajectory that the FQI would use to build its model
     # it must be a (x,u,r) tuple, where x is a (p,s) tuple
-    def __init__(self, domain, policy, trajectory = [], N = 0):
+    def __init__(self, domain, policy, trajectory = [], N = 0, nb_games  = 0 ):
         # initialize dynamics and policy
         self.domain = domain
         self.policy_name = policy
@@ -18,7 +18,7 @@ class Agent:
         self.N_FQI = N
 
         if N > 0:
-            self.FQI = FittedQItLearner(policy, trajectory, N)
+            self.FQI = FittedQItLearner(policy, trajectory, N, nb_games)
 
     # selects an action (-4 or 4) to execute from the current state (position "p" and speed "s")
     def policy(self, p, s):
@@ -53,8 +53,12 @@ class Agent:
         for u in self.domain.ACTIONS:
 
             reward =  self.FQI.rewardFromModel(x, u)
-            if reward > best_reward:
+            print("selecting best move : currently analysing move " + str(u)  )
+            print("reward is : " + str(reward) + ", current best reward is "+ str(best_reward))
+            if reward >= best_reward:
                 best_reward = reward
                 best_action = u
 
-        return u
+        print("best action is : " + str(best_action) )
+
+        return best_action
