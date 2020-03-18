@@ -3,6 +3,7 @@ from sklearn.ensemble import ExtraTreesRegressor
 from domain import Domain
 import numpy as np
 import os.path
+import sys
 from joblib import dump, load
 
 class FittedQItLearner:
@@ -29,7 +30,7 @@ class FittedQItLearner:
         self.model = self.Q_iter(N)
 
 
-    def Q_iter(self, N):
+    def Q_iterOld(self, N):
 
         X_U = []
         R = []
@@ -147,6 +148,64 @@ class FittedQItLearner:
 
         return self.model
 
+
+    def Q_iter(self, N):
+        print("number of tuples : " + str(len(self.trajectory)))
+
+        # TODO : make modular for other models
+        Q0 = ExtraTreesRegressor(n_estimators= 50)
+
+        xtrain = np.zeros((len(self.trajectory),3))
+        ytrain = np.zeros(len(self.trajectory))
+        j = 0
+
+        #generate intial training set
+        for (pt,st),action,(pnext,snext),reward in self.trajectory:
+            xtrain[j][0] = pt
+            xtrain[j][1] = st
+            xtrain[j][2] = action
+            ytrain[j] = reward
+            j=j+1
+
+        Q0.fit(xtrain,ytrain)
+
+        #Useful variables
+        Qprev = Q0
+        currStateAction1 = np.zeros((1,3)) #State and chosen action is Left
+        currStateAction2 = np.zeros((1,3)) #State and chosen action is Right
+
+
+        print("\nFitted Q learning:\n")
+
+        #Fitted Q algorithm
+        for i in range(N):
+            print(" iteration " + str(i))
+            j = 0
+
+            #Rebuild the training set
+            for (pt,st),action,(pnext,snext),reward in self.trajectory:
+
+                # TODO re use the more general maxPreviousQ function ( and adapt it )
+                currStateAction1[0][0]=pnext
+                currStateAction1[0][1]=snext
+                currStateAction1[0][2]=-4
+
+                currStateAction2[0][0]=pnext
+                currStateAction2[0][1]=snext
+                currStateAction2[0][2]=4
+
+                ytrain[j] = reward + self.domain.DISCOUNT_FACTOR*max(Qprev.predict(currStateAction1),Qprev.predict(currStateAction2))
+                j = j+1
+
+            # TODO make more general
+            Qcurr = ExtraTreesRegressor(n_estimators= 50)
+            Qcurr.fit(xtrain,ytrain)
+            Qprev = Qcurr
+
+        print("done iterating")
+
+        return Qcurr
+
     # gives the max reward obtainable from a given state x for all actions possibles
     # u using the last SL model
     def maxPreviousQ(self,p,s):
@@ -164,10 +223,23 @@ class FittedQItLearner:
         return best_reward
 
     # returns the reward estimated by the Q_N model for a given state and action
-    def rewardFromModel(self, x,u):
+    def rewardFromModelOld(self, x,u):
 
         p,s = x
         to_predict = [[p, s, u]]  # to avoid dimensionality problems
         reward = self.model.predict((to_predict))
+
+        return reward
+
+    # returns the reward estimated by the Q_N model for a given state and action
+    def rewardFromModel(self, x,u):
+
+        currStateAction = np.zeros((1,3))
+        p,s = x
+
+        currStateAction[0][0]=p
+        currStateAction[0][1]=s
+        currStateAction[0][2]=u
+        reward = self.model.predict(currStateAction)
 
         return reward

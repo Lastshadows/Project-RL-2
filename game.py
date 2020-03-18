@@ -68,9 +68,9 @@ class Game:
         i = 0
         # we play as long as we are not in a terminal state
         while self.domain.isTerminalState(self.p, self.s) == False:
+
             # generate an action based on the policy of the agent
             action = self.agent.policy(self.p,self.s)
-            # print(" the selected action is " + str(action) + "\n")
 
             # getting the resulting state from state and action
             next_state = self.domain.dynamics(self.p, self.s, action, self.t)
@@ -85,7 +85,6 @@ class Game:
             self.p, self.s, self.t = next_state
             i = i+1
 
-        #print(self.domain.rewardSignal(self.p, self.s))
         # check if won
         if self.domain.rewardSignal(self.p, self.s) == 1:
             self.isWon = True
@@ -95,9 +94,9 @@ class Game:
     # N is the number of iteration the FQI algo will use if this is the chosen policy
     # trajectory is the trajectory that the FQI would use to build its model
     # it must be a (x,u,r) tuple, where x is a (p,s) tuple
-    def setToFQI(self, policy, trajectory, N, nb_games):
+    def setToFQI(self, policy_FQI, trajectory, N, nb_games):
 
         # change the policy name
-        self.policy_name = policy
+        self.policy_name = policy_FQI
         # create the FQI agent and replace the original one
-        self.agent = Agent(self.domain, policy, trajectory, N, nb_games)
+        self.agent = Agent(self.domain, policy_FQI, trajectory, N, nb_games)
