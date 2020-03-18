@@ -46,7 +46,8 @@ class Game:
             # fill the trajectory
             r = self.domain.rewardSignal(p, s)
             self.reward = self.reward + pow(self.gamma, i) * r
-            self.trajectory.append(((self.p, self.s), action, r))
+            self.trajectory.append(( (p,s), action, r ))   # after bardhyl
+            #self.trajectory.append(((self.p, self.s), action, r))  # before bardhyl
 
             # update our current state
             self.p, self.s, self.t = next_state

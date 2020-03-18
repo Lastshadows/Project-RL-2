@@ -104,6 +104,7 @@ if __name__ == '__main__':
 
     #Fitted Q algorithm
     for i in range(nbQ):
+        print(" iteration " + str(i))
         j = 0
         
         #Rebuild the training set
@@ -129,6 +130,8 @@ if __name__ == '__main__':
             sys.stdout.flush()
 
     sys.stdout.write("]\n") #
+
+    print("done iterating")
 
     #Chose a initial state (p,s)
     p = random.uniform(-0.1, 0.1)
@@ -157,6 +160,8 @@ if __name__ == '__main__':
             actionAll.append("RIGHT")
 
         p,s,t = D.dynamics(p, s, action, t)
+
+    print("done playing the final game")
 
     #Check the final position, the actions taken and if it is a winning state
     print("position: "+str(p) + " "+str(s))

@@ -60,7 +60,7 @@ class FittedQItLearner:
         R = np.array(R)
         name_model = ''
 
-        # compute approximation of Q1
+        # compute approximation of Q0
         if(self.model_type == "linear"):
 
             model = LinearRegression()
@@ -102,8 +102,9 @@ class FittedQItLearner:
         self.model = model
 
         for i in(range(N)):
+            i+=1
 
-            print(" \nFQI iteration " + str(i+1) + " out of " + str(N) + " \n")
+            print(" \nFQI iteration " + str(i) + " out of " + str(N) + " \n")
             R_i = []
 
             # writing down the name of the model we are about to build
@@ -130,7 +131,7 @@ class FittedQItLearner:
                     p2, s2, t2 = self.domain.dynamics( p, s, u, 0) # we dont care about t
                     cumulated_r = r + self.domain.DISCOUNT_FACTOR*self.maxPreviousQ(p2,s2)
 
-                    R_i = np.append(cumulated_r, R_i) # here maybe speed loss
+                    R_i = np.append(cumulated_r, R_i) # here maybe speed loss !!!!!
 
             R_i = np.array(R_i)
 

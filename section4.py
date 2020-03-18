@@ -3,16 +3,8 @@ from game import Game
 import imageio
 import os
 
-# Execution example
-if __name__ == "__main__":
 
-    policy = "RAND"
-    steps = 1000
-
-    # play a game
-    game = Game(0, 0, policy, steps)
-    game.playGame()
-
+def GIFMaker( game):
     i = 0
     images = []
 
@@ -23,9 +15,8 @@ if __name__ == "__main__":
 
     # build the gif from the images generated
     for tuple in game.trajectory:
-
         state, u, r = tuple
-        p,s = state
+        p, s = state
         filename = "GIF/carTraj" + str(i) + ".png"
 
         # save the image of a given state
@@ -52,5 +43,17 @@ if __name__ == "__main__":
     # delete the folder
     os.rmdir(newpath)
 
-    # save the gif 
-    imageio.mimsave('trajectory' + policy+ '.gif', images)
+    # save the gif
+    imageio.mimsave('trajectory' + policy + '.gif', images)
+
+# Execution example
+if __name__ == "__main__":
+
+    policy = "RAND"
+    steps = 1000
+
+    # play a game
+    game = Game(0, 0, policy, steps)
+    game.playGame()
+
+    GIFMaker(game =  game)

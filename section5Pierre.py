@@ -9,11 +9,11 @@ if __name__ == "__main__":
 
     policy = "RAND"
     policy_FQI = "tree"
-    steps = 100
+    steps = 100000000
     FQI_steps = 2000
-    nb_of_games = 1000
+    nb_of_games = 100
     concatenated_traj = []
-    N_FQI = 75 
+    N_FQI = 40
 
     filename = str(nb_of_games) + 'games_half_win'
 
