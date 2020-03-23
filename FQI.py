@@ -180,7 +180,7 @@ class FittedQItLearner:
 
         #Fitted Q algorithm
         for i in range(N):
-            print(" iteration " + str(i))
+            print(" iteration " + str(i) + " out of " + str(N))
             j = 0
 
             #Rebuild the training set

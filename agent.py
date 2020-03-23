@@ -73,12 +73,12 @@ class Agent:
         for u in self.domain.ACTIONS:
 
             reward =  self.FQI.rewardFromModel(x, u)
-            print("selecting best move : currently analysing move " + str(u)  )
-            print("reward is : " + str(reward) + ", current best reward is "+ str(best_reward))
+            # print("selecting best move : currently analysing move " + str(u)  )
+            # print("reward is : " + str(reward) + ", current best reward is "+ str(best_reward))
             if reward >= best_reward:
                 best_reward = reward
                 best_action = u
 
-        print("best action is : " + str(best_action) )
+        # print("best action is : " + str(best_action) )
 
         return best_action
