@@ -5,6 +5,7 @@ import numpy as np
 import sys
 from domain import Domain
 import argparse
+from section4 import GIFMaker
 
 def generateWinningGame(p,s,policy, steps):
 
@@ -20,12 +21,12 @@ if __name__ == '__main__':
 
     # constants useful
     policy = "RAND"  # Game policy
-    policy_FQI = "tree" # SL algo used for building FQI
+    policy_FQI = "linear" # SL algo used for building FQI
     steps = 1000  # max number of steps of a game (will be ignored in this configuration)
-    N_FQI = 10  # Number of iteration of Q
+    N_FQI = 20  # Number of iteration of Q
     toolbar_width = 10
     win = 0  # number of winning games
-    nb_of_games = 100 # number of episodes should change to 1000 but takes to much time
+    nb_of_games = 10000 # number of episodes should change to 1000 but takes to much time
 
     fourTuple = []  # (xt,ut,rt, xt+1)
 
@@ -40,10 +41,10 @@ if __name__ == '__main__':
         p = random.uniform(-0.1, 0.1)
         s = 0
 
-        #game = Game(p, s, policy, steps)
-        #game.playGameTillEnd()  # Ends game when it reaches final state
+        game = Game(p, s, policy, steps)
+        game.playGameTillEnd()  # Ends game when it reaches final state
 
-        game = generateWinningGame(p,s,policy, steps)
+        #game = generateWinningGame(p,s,policy, steps)
 
         # number of game won
         if game.isWon == True:
@@ -78,3 +79,5 @@ if __name__ == '__main__':
         i+=1
 
     print("game of " + str(i) + " moves")
+
+    GIFMaker(game, policy_FQI)

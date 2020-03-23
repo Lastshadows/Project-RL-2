@@ -30,6 +30,7 @@ class FittedQItLearner:
         self.model = self.Q_iter(N)
 
 
+
     def Q_iterOld(self, N):
 
         X_U = []
@@ -153,7 +154,7 @@ class FittedQItLearner:
         print("number of tuples : " + str(len(self.trajectory)))
 
         # TODO : make modular for other models
-        Q0 = ExtraTreesRegressor(n_estimators= 50)
+        Q0 = self.getNewModel()
 
         xtrain = np.zeros((len(self.trajectory),3))
         ytrain = np.zeros(len(self.trajectory))
@@ -198,7 +199,7 @@ class FittedQItLearner:
                 j = j+1
 
             # TODO make more general
-            Qcurr = ExtraTreesRegressor(n_estimators= 50)
+            Qcurr = self.getNewModel()
             Qcurr.fit(xtrain,ytrain)
             Qprev = Qcurr
 
@@ -243,3 +244,23 @@ class FittedQItLearner:
         reward = self.model.predict(currStateAction)
 
         return reward
+
+    def getNewModel(self):
+
+        if(self.model_type == "linear"):
+
+            return LinearRegression()
+
+        elif(self.model_type == "tree"):
+
+            return ExtraTreesRegressor(n_estimators= self.trees_n_estimators, random_state=0)
+
+
+        elif (self.model_type == "network"):
+            print("error, model not done yet")
+            return 0
+
+        else:
+            print("error, model type not available")
+
+            return 0

@@ -4,7 +4,7 @@ import imageio
 import os
 
 
-def GIFMaker( game):
+def GIFMaker( game, policy, string = ""):
     i = 0
     images = []
 
@@ -44,7 +44,7 @@ def GIFMaker( game):
     os.rmdir(newpath)
 
     # save the gif
-    imageio.mimsave('trajectory' + policy + '.gif', images)
+    imageio.mimsave('trajectory_' + policy +string + '.gif', images)
 
 # Execution example
 if __name__ == "__main__":
@@ -56,4 +56,4 @@ if __name__ == "__main__":
     game = Game(0, 0, policy, steps)
     game.playGame()
 
-    GIFMaker(game =  game)
+    GIFMaker(game, policy)
