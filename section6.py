@@ -20,8 +20,18 @@ def generateWinningGame(p,s,policy, steps):
 
     return game
 
+def generateLosingGame(p,s,policy, steps):
 
-def generateTraj(toolbar_width, nb_of_games, all_win, save, policy, steps):
+    game = Game(p, s, policy, steps)
+    game.playGameTillEnd()
+    while game.isWon:
+        game = Game(p, s, policy, steps)
+        game.playGameTillEnd()
+
+    return game
+
+
+def generateTraj(toolbar_width, nb_of_games, all_win, mixed_games, save, policy, steps):
 
         fourTuple = []
         win = 0  # number of winning games
@@ -52,8 +62,11 @@ def generateTraj(toolbar_width, nb_of_games, all_win, save, policy, steps):
                     game = generateWinningGame(p,s,policy, steps)
 
                 else:
-                    game = Game(p, s, policy, steps)
-                    game.playGameTillEnd()  # Ends game when it reaches final state
+                    if mixed_games and i%2 :
+                        game = generateWinningGame(p,s,policy, steps)
+                    else:
+                        game = Game(p, s, policy, steps)
+                        game.playGameTillEnd()  # Ends game when it reaches final state
 
                 # number of game won
                 if game.isWon == True:
@@ -80,12 +93,12 @@ def generateTraj(toolbar_width, nb_of_games, all_win, save, policy, steps):
         return fourTuple
 
 
-def setAndPlayGame(policy, steps, policy_FQI, fourTuple, N_FQI, nb_of_games, all_win):
+def setAndPlayGame(policy, steps, policy_PQL, fourTuple, nb_of_games, all_win):
     # creating the FQI game
-    print("building the FQI model")
+    print("building the PQL model")
     p = random.uniform(-0.1, 0.1)
     game = Game(p,0,policy, steps)
-    game.setToFQI(policy_FQI, fourTuple, N_FQI, nb_of_games)
+    game.setToPQL(policy_PQL, fourTuple)
 
     print("playing last game")
     game.playGame()
@@ -95,11 +108,11 @@ def setAndPlayGame(policy, steps, policy_FQI, fourTuple, N_FQI, nb_of_games, all
         # print(tuple) VERBOSE
         i+=1
 
-    print("game of " + str(i) + " moves with policy " + str(policy_FQI) +  " based on " + str(nb_of_games) + " and " + str(N_FQI) + " steps")
+    print("game of " + str(i) + " moves with policy " + str(policy_PQL) +  " based on " + str(nb_of_games) )
     print("training  games were all won : " + str(all_win) )
-    print("game won : " + str(game.isWon))
+    print(" game was won : " +  str(game.isWon))
 
-    GIFMaker(game, policy_FQI)
+    GIFMaker(game, policy_PLQ)
     return game
 
 
@@ -109,43 +122,14 @@ if __name__ == '__main__':
 
     # constants useful
     policy = "RAND"  # Game policy
-    policy_FQI = "tree" # SL algo used for building FQI
+    policy_PQL = "radial" # SL algo used for building FQI
     steps = 500 # max number of steps of a game (will be ignored in this configuration)
-    N_FQI = 25 # Number of iteration of Q
     toolbar_width = 10
-    nb_of_games = 300# number of episodes should change to 1000 but takes to much time
+    nb_of_games = 50# number of episodes should change to 1000 but takes to much time
     all_win = False
+    mixed_games =  True
     save = False
 
     fourTuple = []  # (xt,ut,rt, xt+1)
-    fourTuple = generateTraj(toolbar_width, nb_of_games, all_win, save, policy, steps)
-    setAndPlayGame(policy, steps, policy_FQI, fourTuple, N_FQI, nb_of_games, all_win)
-
-    moves = []
-
-    """
-    # iterate over the trajectory
-    for i in range(nb_of_games):
-
-        # all 10 games
-        if ((i % 10) == 0 and i != 0):
-            print( "i = " + str(i))
-            small_traj_size =  int(i/nb_of_games*len(fourTuple)) # we take a sub trajectory of a reducted size (i/nb_of_game % of the full trajectory)
-
-            truncated_fourtTuple =  fourTuple[:small_traj_size]
-            game = setAndPlayGame(policy, steps, policy_FQI, truncated_fourtTuple, N_FQI, nb_of_games, all_win)
-            nb_of_moves = len(game.trajectory)
-            moves.append(nb_of_moves)
-            print("game won : " + str(game.isWon))
-
-    y_pos = np.arange(len(moves))
-
-    # Create bars
-    plt.bar(y_pos, moves)
-
-    # Create names on the x-axis
-    #plt.xticks(y_pos, bars)
-
-    # Show graphic
-    plt.show()
-    """
+    fourTuple = generateTraj(toolbar_width, nb_of_games, all_win, mixed_games,save, policy, steps)
+    setAndPlayGame(policy, steps, policy_PQL, fourTuple, nb_of_games, all_win)

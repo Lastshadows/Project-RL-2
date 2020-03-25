@@ -153,7 +153,6 @@ class FittedQItLearner:
     def Q_iter(self, N):
         print("number of tuples : " + str(len(self.trajectory)))
 
-        # TODO : make modular for other models
         Q0 = self.getNewModel()
 
         xtrain = np.zeros((len(self.trajectory),3))

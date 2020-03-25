@@ -100,3 +100,14 @@ class Game:
         self.policy_name = policy_FQI
         # create the FQI agent and replace the original one
         self.agent = Agent(self.domain, policy_FQI, trajectory, N, nb_games)
+
+    # sets the parameters for a parametric Q learning policy game
+    # 'policy'  is a string giving the nature of the SL model type (radial based or network) that the PQL algo will use
+    # trajectory is the trajectory that the PQL would use to build its model
+    # it must be a (x,u,r) tuple, where x is a (p,s) tuple
+    def setToPQL(self, policy_PQL, trajectory):
+
+        # change the policy name
+        self.policy_name = policy_PQL
+        # create the FQI agent and replace the original one
+        self.agent = Agent(self.domain, policy_PQL, trajectory, QLearning = True)
