@@ -10,6 +10,7 @@ import os
 import pickle
 import numpy as np
 import matplotlib.pyplot as plt
+from pytorchTry import PQL
 
 def generateWinningGame(p,s,policy, steps):
 
@@ -43,8 +44,11 @@ def generateTraj(toolbar_width, nb_of_games, all_win, mixed_games, save, policy,
         sys.stdout.write(
             "\b" * (toolbar_width + 1))  # return to start of line, after '['
 
+        if not mixed_games:
 
-        filename = str(nb_of_games) + '_games_all_win_' + str(all_win)
+            filename = str(nb_of_games) + '_games_all_win_' + str(all_win)
+
+        else : filename = str(nb_of_games) + '_games_mixed_' + str(mixed_games)
 
         # if the desired number of won games has already been generated, no need to generate them anymore
         if os.path.isfile(filename):
@@ -128,8 +132,13 @@ if __name__ == '__main__':
     nb_of_games = 50# number of episodes should change to 1000 but takes to much time
     all_win = False
     mixed_games =  True
-    save = False
+    save = True
+
+    gamma = 0.95
+    alpha = 0.05
 
     fourTuple = []  # (xt,ut,rt, xt+1)
     fourTuple = generateTraj(toolbar_width, nb_of_games, all_win, mixed_games,save, policy, steps)
-    setAndPlayGame(policy, steps, policy_PQL, fourTuple, nb_of_games, all_win)
+    PQL(fourTuple, alpha, gamma)
+
+    # setAndPlayGame(policy, steps, policy_PQL, fourTuple, nb_of_games, all_win)
