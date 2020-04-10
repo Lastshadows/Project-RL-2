@@ -34,6 +34,8 @@ for t in range(500):
     # values of y, and the loss function returns a Tensor containing the
     # loss.
     loss = loss_fn(y_pred, y)
+    print( "LOSS : " + str(loss))
+
     if t % 100 == 99:
         print(t, loss.item())
 

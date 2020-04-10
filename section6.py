@@ -129,13 +129,13 @@ if __name__ == '__main__':
     policy_PQL = "radial" # SL algo used for building FQI
     steps = 500 # max number of steps of a game (will be ignored in this configuration)
     toolbar_width = 10
-    nb_of_games = 50# number of episodes should change to 1000 but takes to much time
-    all_win = False
-    mixed_games =  True
+    nb_of_games = 1000# number of episodes should change to 1000 but takes to much time
+    all_win = True
+    mixed_games =  not all_win
     save = True
 
     gamma = 0.95
-    alpha = 0.05
+    alpha = 0.0000001
 
     fourTuple = []  # (xt,ut,rt, xt+1)
     fourTuple = generateTraj(toolbar_width, nb_of_games, all_win, mixed_games,save, policy, steps)

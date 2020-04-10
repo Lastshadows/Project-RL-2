@@ -1,23 +1,36 @@
 import torch
 from domain import Domain
 
+def init_weights(m):
+    if type(m) == torch.nn.Linear:
+        torch.nn.init.xavier_uniform(m.weight)
+        m.bias.data.fill_(0.1)
+
+def weights_init_uniform(m):
+    classname = m.__class__.__name__
+    # for every Linear layer in a model..
+    if classname.find('Linear') != -1:
+        # apply a uniform distribution to the weights and a bias=0
+        m.weight.data.uniform_(0.0, 1.0)
+        m.bias.data.fill_(0)
+
 def PQL(trajectory, learning_rate, gamma):
+
     # N is batch size; D_in is input dimension;
     # H is hidden dimension; D_out is output dimension.
     N = len(trajectory)
     D_in = 3
-    H = 100
+    H1 = 50
+    H2 = 100
+    H3 = 50
     D_out = 1
 
     domain = Domain()
 
     # Create Tensor holding our data
-
-    x2 = torch.randn(N, D_in)
-    y2 = torch.randn(N, D_out)
-
     x = []
     y = []
+
     for tuple in trajectory:
         ((p, s), action,(p2,s2), r) =  tuple
         x.append([p,s,action])
@@ -32,10 +45,46 @@ def PQL(trajectory, learning_rate, gamma):
     # produce its output. Each Linear Module computes output from input using a
     # linear function, and holds internal Tensors for its weight and bias.
     model = torch.nn.Sequential(
-        torch.nn.Linear(D_in, H),
-        torch.nn.ReLU(),
-        torch.nn.Linear(H, D_out),
+        torch.nn.Linear(D_in, H1),
+        torch.nn.Sigmoid(),
+        torch.nn.Linear(H1, H1),
+        torch.nn.Sigmoid(),
+        torch.nn.Linear(H1, H1),
+        torch.nn.Sigmoid(),
+        torch.nn.Linear(H1, H2),
+        torch.nn.Sigmoid(),
+        torch.nn.Linear(H2, H2),
+        torch.nn.Sigmoid(),
+        torch.nn.Linear(H2, H3),
+        torch.nn.Sigmoid(),
+        torch.nn.Linear(H3, H2),
+        torch.nn.Sigmoid(),
+        torch.nn.Linear(H2, H1),
+        torch.nn.Sigmoid(),
+        torch.nn.Linear(H1, H1),
+        torch.nn.Sigmoid(),
+        torch.nn.Linear(H1, H1),
+        torch.nn.Sigmoid(),
+        torch.nn.Linear(H1, H1),
+        torch.nn.Sigmoid(),
+        torch.nn.Linear(H1, H2),
+        torch.nn.Sigmoid(),
+        torch.nn.Linear(H2, H2),
+        torch.nn.Sigmoid(),
+        torch.nn.Linear(H2, H3),
+        torch.nn.Sigmoid(),
+        torch.nn.Linear(H3, H2),
+        torch.nn.Sigmoid(),
+        torch.nn.Linear(H2, H1),
+        torch.nn.Sigmoid(),
+        torch.nn.Linear(H1, H1),
+        torch.nn.Sigmoid(),
+        torch.nn.Linear(H1, D_out),
     )
+
+    # initialize weights
+    #model.apply(init_weights)
+    model.apply(weights_init_uniform)
 
     # The nn package also contains definitions of popular loss functions; in this
     # case we will use Mean Squared Error (MSE) as our loss function.
@@ -68,18 +117,12 @@ def PQL(trajectory, learning_rate, gamma):
         # a Tensor of output data.
         y_pred = model(x)
 
-        y_pred2 = model(x2)
-
         # Compute and print loss. We pass Tensors containing the predicted and true
         # values of y, and the loss function returns a Tensor containing the
         # loss.
-        loss = loss_fn(y_pred, y)
-        loss2 = loss_fn(y_pred2, y2)
+        loss = loss_fn(y_pred, y.float())
 
-        print(" LOSS = " + str(loss))
-        print(" LOSS2 = " + str(loss2))
-        if i % 100 == 99:
-            print(i, loss2.item())
+        print(" LOSS = " + str(loss) )
 
         # Zero the gradients before running the backward pass.
         model.zero_grad()
@@ -89,16 +132,15 @@ def PQL(trajectory, learning_rate, gamma):
         # in Tensors with requires_grad=True, so this call will compute gradients for
         # all learnable parameters in the model.
 
-        loss2.backward()
+        loss.backward()
 
         # Update the weights using gradient descent. Each parameter is a Tensor, so
         # we can access its gradients like we did before.
         with torch.no_grad():
             for param in model.parameters():
+                """
                 print(" \n !!! learning rate : " + str(learning_rate))
                 print(" !!! param.grid : " + str(param.grad))
                 print(" !!! temporal_delta : " + str(temporal_delta))
+                """
                 param += learning_rate * param.grad * temporal_delta
-
-        if i > 4:
-            break
