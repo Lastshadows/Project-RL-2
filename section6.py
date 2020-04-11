@@ -151,26 +151,39 @@ if __name__ == '__main__':
     else:
         model = torch.load(PATH)
         model.eval()
-    ###################################### TEST
 
-    x = []
-    y = []
+    # generate the graphics of performances
 
-    for tuple in fourTuple:
-        ((p, s), action,(p2,s2), r) =  tuple
-        x.append([p,s,action])
-        y.append([r])
+    pvect = np.zeros(200)
+    t = np.arange(-1, 1.0, 0.01)
+    win = 0
 
+    for i in range(200):
 
-    x = torch.tensor(x)
-    y = torch.tensor(y)
+        p = -1 + i/100
+        sumreward = 0
+        for j in range(10):
 
-    for i in range(len(fourTuple)):
-        #print(i)
+            game = Game(p,0,policy, steps)
+            game.setToPQL(policy_PQL, fourTuple, PATH)
+            game.playGame()
+            sumreward = sumreward + game.reward
 
-        Q = x[i]
-        r = model(torch.tensor(Q))
+            if game.isWon:
+                win += 1
+                print("a game was won ! ")
+        #print(game.reward)
+        print("game " +str(i) + " : " + str(sumreward/10))
+        pvect[i]=sumreward/10
+        #print("pvect "+ str(pvect))
 
-        print(" pred = " + str(r) + " , true val = " + str(y[i]))
+    print(str(win) + " games won")
 
-    setAndPlayGame(policy, steps, policy_PQL, fourTuple, nb_of_games, all_win, PATH, model)
+    plt.figure(figsize=(20,10))
+    plt.plot(t, pvect, lw=2)
+    plt.ylabel("Reward")
+    plt.xlabel("Initial position p")
+    plt.show()
+    plt.savefig('myfig.png')
+
+    # setAndPlayGame(policy, steps, policy_PQL, fourTuple, nb_of_games, all_win, PATH, model)
