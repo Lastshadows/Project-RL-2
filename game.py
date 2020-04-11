@@ -105,9 +105,9 @@ class Game:
     # 'policy'  is a string giving the nature of the SL model type (radial based or network) that the PQL algo will use
     # trajectory is the trajectory that the PQL would use to build its model
     # it must be a (x,u,r) tuple, where x is a (p,s) tuple
-    def setToPQL(self, policy_PQL, trajectory):
+    def setToPQL(self, policy_PQL, trajectory, PATH):
 
         # change the policy name
         self.policy_name = policy_PQL
-        # create the FQI agent and replace the original one
-        self.agent = Agent(self.domain, policy_PQL, trajectory, QLearning = True)
+        # create the PQL agent and replace the original one
+        self.agent = Agent(self.domain, policy_PQL, trajectory, QLearning = True, PATH = PATH)

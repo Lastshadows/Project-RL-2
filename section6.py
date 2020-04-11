@@ -11,6 +11,8 @@ import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 from pytorchTry import PQL
+import torch
+
 
 def generateWinningGame(p,s,policy, steps):
 
@@ -97,12 +99,12 @@ def generateTraj(toolbar_width, nb_of_games, all_win, mixed_games, save, policy,
         return fourTuple
 
 
-def setAndPlayGame(policy, steps, policy_PQL, fourTuple, nb_of_games, all_win):
+def setAndPlayGame(policy, steps, policy_PQL, fourTuple, nb_of_games, all_win, PATH, model):
     # creating the FQI game
     print("building the PQL model")
     p = random.uniform(-0.1, 0.1)
     game = Game(p,0,policy, steps)
-    game.setToPQL(policy_PQL, fourTuple)
+    game.setToPQL(policy_PQL, fourTuple, PATH)
 
     print("playing last game")
     game.playGame()
@@ -116,7 +118,7 @@ def setAndPlayGame(policy, steps, policy_PQL, fourTuple, nb_of_games, all_win):
     print("training  games were all won : " + str(all_win) )
     print(" game was won : " +  str(game.isWon))
 
-    GIFMaker(game, policy_PLQ)
+    GIFMaker(game, policy_PQL, "PQL")
     return game
 
 
@@ -126,19 +128,49 @@ if __name__ == '__main__':
 
     # constants useful
     policy = "RAND"  # Game policy
-    policy_PQL = "radial" # SL algo used for building FQI
+    policy_PQL = "network" # SL algo used for building PQL
     steps = 500 # max number of steps of a game (will be ignored in this configuration)
     toolbar_width = 10
-    nb_of_games = 1000# number of episodes should change to 1000 but takes to much time
+    nb_of_games = 150# working nb was 1000 but takes time
     all_win = True
     mixed_games =  not all_win
     save = True
+    Train = False # train another network ?
 
     gamma = 0.95
-    alpha = 0.0000001
+    alpha = 0.0000001 # working value was 0.0000001
+    model = torch.nn.Sequential()
+
+    PATH = "modeltensor(999.5970, grad_fn=<MseLossBackward>)" # to modify if we want to load a model
 
     fourTuple = []  # (xt,ut,rt, xt+1)
     fourTuple = generateTraj(toolbar_width, nb_of_games, all_win, mixed_games,save, policy, steps)
-    PQL(fourTuple, alpha, gamma)
 
-    # setAndPlayGame(policy, steps, policy_PQL, fourTuple, nb_of_games, all_win)
+    if Train:
+        model, PATH = PQL(fourTuple, alpha, gamma, PATH)
+    else:
+        model = torch.load(PATH)
+        model.eval()
+    ###################################### TEST
+
+    x = []
+    y = []
+
+    for tuple in fourTuple:
+        ((p, s), action,(p2,s2), r) =  tuple
+        x.append([p,s,action])
+        y.append([r])
+
+
+    x = torch.tensor(x)
+    y = torch.tensor(y)
+
+    for i in range(len(fourTuple)):
+        #print(i)
+
+        Q = x[i]
+        r = model(torch.tensor(Q))
+
+        print(" pred = " + str(r) + " , true val = " + str(y[i]))
+
+    setAndPlayGame(policy, steps, policy_PQL, fourTuple, nb_of_games, all_win, PATH, model)

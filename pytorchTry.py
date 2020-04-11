@@ -1,5 +1,6 @@
 import torch
 from domain import Domain
+import matplotlib.pyplot as plt
 
 def init_weights(m):
     if type(m) == torch.nn.Linear:
@@ -14,7 +15,7 @@ def weights_init_uniform(m):
         m.weight.data.uniform_(0.0, 1.0)
         m.bias.data.fill_(0)
 
-def PQL(trajectory, learning_rate, gamma):
+def PQL(trajectory, learning_rate, gamma, PATH):
 
     # N is batch size; D_in is input dimension;
     # H is hidden dimension; D_out is output dimension.
@@ -25,6 +26,8 @@ def PQL(trajectory, learning_rate, gamma):
     H3 = 50
     D_out = 1
 
+    losses = []
+    loss = 0
     domain = Domain()
 
     # Create Tensor holding our data
@@ -91,9 +94,8 @@ def PQL(trajectory, learning_rate, gamma):
     loss_fn = torch.nn.MSELoss(reduction='sum')
 
     for i in range(len(trajectory)):
-        print("\n NEW ITERATION")
-        print(i)
-        # creating the temporal difference factor
+
+        print(str(i) + "/" + str(range(len(trajectory))))
 
         # computing the max Q from possible actions
         maxQ = -10
@@ -109,6 +111,8 @@ def PQL(trajectory, learning_rate, gamma):
         s =  x[i][1]
         u =  x[i][2]
         Q = [p,s,u]
+
+        # creating the temporal difference factor
         temporal_delta =  y[i] + gamma*maxQ - model(torch.tensor(Q))
 
         # Forward pass: compute predicted y by passing x to the model. Module objects
@@ -123,6 +127,7 @@ def PQL(trajectory, learning_rate, gamma):
         loss = loss_fn(y_pred, y.float())
 
         print(" LOSS = " + str(loss) )
+        losses.append(loss)
 
         # Zero the gradients before running the backward pass.
         model.zero_grad()
@@ -144,3 +149,12 @@ def PQL(trajectory, learning_rate, gamma):
                 print(" !!! temporal_delta : " + str(temporal_delta))
                 """
                 param += learning_rate * param.grad * temporal_delta
+
+    # loss plot printing
+    plt.plot(losses)
+    plt.ylabel('loss')
+    plt.show()
+    # save the model
+    PATH = PATH +str(loss)
+    torch.save(model, PATH)
+    return model, PATH

@@ -2,6 +2,7 @@ from domain import Domain
 import random
 from FQI import FittedQItLearner
 from PQL import PQL
+import torch
 
 class Agent:
 
@@ -13,19 +14,21 @@ class Agent:
     # it must be a (x,u,r) tuple, where x is a (p,s) tuple
     # QLearning is a boolean value indicating if we are using a QLearning algorithm to define our policy
     # if QLearning is set to true, then one of 2 SL algo can be used to train the agent : radial or network
-    def __init__(self, domain, policy, trajectory = [], N = 0, nb_games  = 0, QLearning = False ):
+    def __init__(self, domain, policy, trajectory = [], N = 0, nb_games  = 0, QLearning = False, PATH ="" ):
         # initialize dynamics and policy
         self.domain = domain
         self.policy_name = policy
         self.trajectory = trajectory
         self.N_FQI = N
         self.QLearning = QLearning
+        self.PATH = PATH
 
         if N > 0 and not self.QLearning:
             self.FQI = FittedQItLearner(self.policy_name, trajectory, N, nb_games)
 
         if self.QLearning:
-            self.PQL = PQL(self.policy_name, trajectory)
+            self.PQL_model = torch.load(PATH)
+            self.PQL_model.eval()
 
     # selects an action (-4 or 4) to execute from the current state (position "p" and speed "s")
     def policy(self, p, s):
@@ -51,7 +54,8 @@ class Agent:
                 x = (p,s)
                 return self.selectBestActionFromFQI(x)
             else:
-                print("need to implement QLearning for network")
+                x = (p,s)
+                return self.selectBestActionFromPQL(x)
 
         if self.policy_name == "radial":
             x = (p,s)
@@ -89,7 +93,7 @@ class Agent:
 
             reward =  self.FQI.rewardFromModel(x, u)
             # print("selecting best move : currently analysing move " + str(u)  )
-            # print("reward is : " + str(reward) + ", current best reward is "+ str(best_reward))   VERBOSE
+            #print("reward is : " + str(reward) + ", current best reward is "+ str(best_reward))   VERBOSE
             if reward >= best_reward:
                 best_reward = reward
                 best_action = u
@@ -107,13 +111,18 @@ class Agent:
 
         for u in self.domain.ACTIONS:
 
-            reward =  self.PQL.rewardFromModel(x, u)
+            p,s = x
+            Q = [p,s,u]
+            reward =  self.PQL_model(torch.tensor(Q))
             # print("selecting best move : currently analysing move " + str(u)  )
-            # print("reward is : " + str(reward) + ", current best reward is "+ str(best_reward))   VERBOSE
+            #print("reward is : " + str(reward) + ", current best reward is "+ str(best_reward))   #VERBOSE
             if reward >= best_reward:
                 best_reward = reward
                 best_action = u
 
-        # print("best action is : " + str(best_action) ) VERBOSE
+        #print("best action is : " + str(best_action) ) #VERBOSE
 
         return best_action
+
+    def setPATH(self, PATH):
+        self.PATH = PATH
