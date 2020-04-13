@@ -1,5 +1,6 @@
 from domain import Domain
 from agent import Agent
+import numpy as np
 
 class Game:
 
@@ -71,6 +72,42 @@ class Game:
             # generate an action based on the policy of the agent
             action = self.agent.policy(self.p,self.s)
 
+            # getting the resulting state from state and action
+            next_state = self.domain.dynamics(self.p, self.s, action, self.t)
+            p,s,t = next_state
+
+            # fill the trajectory
+            r = self.domain.rewardSignal(p, s)
+            self.reward = self.reward + pow(self.gamma, i) * r
+            self.fullTrajectory.append(((self.p, self.s), action,(p,s), r))
+
+            # update our current state
+            self.p, self.s, self.t = next_state
+            i = i+1
+
+        # check if won
+        if self.domain.rewardSignal(self.p, self.s) == 1:
+            self.isWon = True
+
+    def playGameGivenQ(self,Qprev,maxiter = 1000):
+        i = 0
+        accelerate = np.zeros((1,3))
+        decelerate = np.zeros((1,3))
+
+        while self.domain.isTerminalState(self.p, self.s) == False and i < maxiter:
+
+            accelerate[0][0]=self.p
+            accelerate[0][1]=self.s
+            accelerate[0][2]=4
+
+            decelerate[0][0]=self.p
+            decelerate[0][1]=self.s
+            decelerate[0][2]=-4
+
+            if Qprev.predict(accelerate)>=Qprev.predict(decelerate):
+                action = 4
+            else:
+                action = -4
             # getting the resulting state from state and action
             next_state = self.domain.dynamics(self.p, self.s, action, self.t)
             p,s,t = next_state
