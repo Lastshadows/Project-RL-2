@@ -92,9 +92,6 @@ def generateTraj(toolbar_width, nb_of_games, all_win, mixed_games, save, policy,
                     pickle.dump(fourTuple, fp)
 
         sys.stdout.write("]\n")  #
-        print("number of winning games : " + str(win))
-
-        print("number of tuples : " + str(len(fourTuple)))
 
         return fourTuple
 
@@ -141,6 +138,7 @@ if __name__ == '__main__':
     alpha = 0.0000001 # working value was 0.0000001
     model = torch.nn.Sequential()
 
+    # modeltensor(999.5970, grad_fn=<MseLossBackward>)
     PATH = "modeltensor(999.5970, grad_fn=<MseLossBackward>)" # to modify if we want to load a model
 
     fourTuple = []  # (xt,ut,rt, xt+1)
@@ -152,16 +150,20 @@ if __name__ == '__main__':
         model = torch.load(PATH)
         model.eval()
 
-    # generate the graphics of performances
+    setAndPlayGame(policy, steps, policy_PQL, fourTuple, nb_of_games, all_win, PATH, model)
 
+"""    # generate the graphics of performances
     pvect = np.zeros(200)
     t = np.arange(-1, 1.0, 0.01)
     win = 0
+    first = True
+    firstRight = True
 
     for i in range(200):
 
         p = -1 + i/100
         sumreward = 0
+
         for j in range(10):
 
             game = Game(p,0,policy, steps)
@@ -169,21 +171,12 @@ if __name__ == '__main__':
             game.playGame()
             sumreward = sumreward + game.reward
 
-            if game.isWon:
-                win += 1
-                print("a game was won ! ")
-        #print(game.reward)
-        print("game " +str(i) + " : " + str(sumreward/10))
         pvect[i]=sumreward/10
-        #print("pvect "+ str(pvect))
 
-    print(str(win) + " games won")
 
     plt.figure(figsize=(20,10))
     plt.plot(t, pvect, lw=2)
     plt.ylabel("Reward")
     plt.xlabel("Initial position p")
     plt.show()
-    plt.savefig('myfig.png')
-
-    # setAndPlayGame(policy, steps, policy_PQL, fourTuple, nb_of_games, all_win, PATH, model)
+    plt.savefig('PQL_behavior_from_initial_state.png') """

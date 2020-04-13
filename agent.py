@@ -108,19 +108,21 @@ class Agent:
 
         best_reward = float("-inf")
         best_action = 0
+        print("\n")
 
         for u in self.domain.ACTIONS:
 
             p,s = x
             Q = [p,s,u]
             reward =  self.PQL_model(torch.tensor(Q))
-            # print("selecting best move : currently analysing move " + str(u)  )
-            #print("reward is : " + str(reward) + ", current best reward is "+ str(best_reward))   #VERBOSE
+            reward = reward[0].item()
+            print("selecting best move : currently analysing move " + str(u)  )
+            print("reward is : " + str(reward) + ", current best reward is "+ str(best_reward))   #VERBOSE
             if reward >= best_reward:
                 best_reward = reward
                 best_action = u
 
-        #print("best action is : " + str(best_action) ) #VERBOSE
+        print("best action is : " + str(best_action) +"\n" ) #VERBOSE
 
         return best_action
 

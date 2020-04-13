@@ -35,9 +35,9 @@ class Game:
 
         # we play as long as we are not in a temrinal state or havent played a given amount of steps
         while i < self.steps:
+
             # generate an action based on the policy of the agent
             action = self.agent.policy(self.p,self.s)
-            # print(" the selected action is " + str(action) + "\n")
 
             # getting the resulting state from state and action
             next_state = self.domain.dynamics(self.p, self.s, action, self.t)
@@ -46,8 +46,7 @@ class Game:
             # fill the trajectory
             r = self.domain.rewardSignal(p, s)
             self.reward = self.reward + pow(self.gamma, i) * r
-            self.trajectory.append(( (p,s), action, r ))   # after bardhyl
-            #self.trajectory.append(((self.p, self.s), action, r))  # before bardhyl
+            self.trajectory.append(( (p,s), action, r ))
 
             # update our current state
             self.p, self.s, self.t = next_state
@@ -61,8 +60,8 @@ class Game:
 
             i+= 1
 
-        if self.domain.rewardSignal(self.p,self.s)==0:
-            print(self.domain.rewardSignal(self.p, self.s))
+        #if self.domain.rewardSignal(self.p,self.s)==0:
+            #print(self.domain.rewardSignal(self.p, self.s))
 
     def playGameTillEnd(self):
         i = 0
